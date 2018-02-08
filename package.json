@@ -10,7 +10,7 @@
   "scripts": {
     "start": "nodem index.js",
     "dev": "nodemon index.js",
-    "web": "node index.js"
+    "web": "npm start"
   },
   "author": "",
   "license": "ISC",
