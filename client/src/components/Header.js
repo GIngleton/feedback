@@ -34,7 +34,7 @@ class Header extends Component {
 
   render() {
     return (
-      <nav class="indigo accent-2">
+      <nav className="indigo accent-2">
         <div className="nav-wrapper">
           <Link
             to={this.props.auth ? '/surveys' : '/'}
