@@ -24,20 +24,19 @@ passport.use(
       clientID: keys.googleClientID,
       clientSecret: keys.googleClientSecret,
       callbackURL: '/auth/google/callback', // route for user returning from google
-      proxy: true
+      proxy: true // allows https to be used
     },
-    (accessToken, refreshToken, profile, done) => {
-      User.findOne({ googleId: profile.id }).then(existingUser => {
-        if (existingUser) {
-          // there is already a record with the given profile ID
-          return done(null, existingUser);
-        } else {
-          // there is no record with the given profile ID, make a new record
-          new User({ googleId: profile.id })
-            .save()
-            .then(user => done(null, user));
-        }
-      });
+    async (accessToken, refreshToken, profile, done) => {
+      const existingUser = await User.findOne({ googleId: profile.id });
+
+      if (existingUser) {
+        // there is already a record with the given profile ID
+        done(null, existingUser);
+      } else {
+        // there is no record with the given profile ID, make a new record
+        const user = await new User({ googleId: profile.id }).save();
+        done(null, user);
+      }
     }
   )
 );
