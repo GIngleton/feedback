@@ -12,6 +12,10 @@ import reduxThunk from 'redux-thunk';
 import App from './components/App';
 import reducers from './reducers';
 
+// to test server logic in the window with OAuth flow without postman
+import axios from 'axios';
+window.axios = axios;
+
 // store represents global level state- 1st arg: all reducers in app, 2nd arg: initial state of app
 const store = createStore(reducers, {}, applyMiddleware(reduxThunk));
 
