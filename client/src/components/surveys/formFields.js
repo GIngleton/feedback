@@ -16,7 +16,7 @@ export default [
   },
   {
     label: 'Recipient List',
-    name: 'emails',
+    name: 'recipients',
     noValueError:
       'You must provide the emails of recipients for your survey separated by commas'
   }

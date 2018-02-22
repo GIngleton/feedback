@@ -50,7 +50,7 @@ function validate(values) {
   // if errors object has properties, redux form assumes there is an error and halts submission process
   // for each property not on values, create one on errors
 
-  errors.emails = validateEmails(values.emails || '');
+  errors.recipients = validateEmails(values.recipients || '');
 
   _.each(formFields, ({ name, noValueError }) => {
     // square bracket means that we're going to figure out which property to look at on the fly

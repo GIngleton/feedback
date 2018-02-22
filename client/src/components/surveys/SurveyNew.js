@@ -1,6 +1,7 @@
 // SurveyNew shows SurveyForm and SurveyFormReview
 
 import React, { Component } from 'react';
+import { reduxForm } from 'redux-form';
 import SurveyForm from './SurveyForm';
 import SurveyFormReview from './SurveyFormReview';
 
@@ -27,4 +28,8 @@ class SurveyNew extends Component {
   }
 }
 
-export default SurveyNew;
+// using redux-form helper here allows the form values to be cleared after the user clicks cancel
+// *** if this component is unmounted, dump all values inside the form ***
+export default reduxForm({
+  form: 'surveyForm'
+})(SurveyNew);

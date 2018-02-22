@@ -1,3 +1,6 @@
+const _ = require('lodash');
+const Path = require('path-parser');
+const { URL } = require('url');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 const requireCredits = require('../middlewares/requireCredits');
@@ -7,8 +10,58 @@ const surveyTemplate = require('../services/emailTemplates/surveyTemplate');
 const Survey = mongoose.model('surveys');
 
 module.exports = app => {
-  app.get('/api/surveys/thanks', (req, res) => {
+  app.get('/api/surveys', requireLogin, async (req, res) => {
+    const surveys = await Survey.find({ _user: req.user.id }).select({
+      recipients: false
+    });
+
+    res.send(surveys);
+  });
+
+  app.get('/api/surveys/:surveyId/:choice', (req, res) => {
     res.send('Thanks for your feedback!');
+  });
+
+  app.post('/api/surveys/webhooks', (req, res) => {
+    const p = new Path('/api/surveys/:surveyId/:choice');
+    _.chain(req.body)
+      .map(({ email, url }) => {
+        // extract route from full url
+        // pass in pattern of pathname to be extracted
+
+        const match = p.test(new URL(url).pathname);
+        if (match) {
+          return {
+            email,
+            surveyId: match.surveyId,
+            choice: match.choice
+          };
+        }
+      }) // removes all elements in an array which are undefined
+      .compact()
+      // look at email and survey properties and remove any duplicates
+      // makes it so that users can't vote more than once on the same survey
+      .uniqBy('email', 'surveyId')
+      .each(({ surveyId, email, choice }) => {
+        Survey.updateOne(
+          {
+            _id: surveyId,
+            recipients: {
+              $elemMatch: { email: email, responded: false }
+            }
+          },
+          {
+            // [choice] is not an array, it is key interpolation
+            $inc: { [choice]: 1 },
+            // updates responded to true
+            $set: { 'recipients.$.responded': true },
+            lastresponded: new Date()
+          }
+        ).exec();
+      })
+      .value();
+
+    res.send({});
   });
 
   app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
